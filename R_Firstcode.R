@@ -85,7 +85,77 @@ plotRGB(l1988,4,3,2, stretch="hist")
 > plotRGB(l1988,4,3,2, stretch="hist")
 > plotRGB(l2011,4,3,2, stretch="hist")
 
-> 
+> #per risolvere i problemi quando non carica le immagini png 
+getwd()
+setwd("C:/Lab_Telerilevamento/")
+library(grid)
+library(png)
+img<- readPNG("deformazione1.png")
+defor1<-rasterGrob(img, interpolate = TRUE)
+grid.draw(defor1)
+#lezione 5
+par(mfrow=c(2,1))
+plotRGB(l1992, 1, 2, 3 ;stretch= 'lin')
+plotRGB(l2006, 1, 2, 3 ;stretch= 'lin')
+# sottrazione fra immagini
+
+ndvi1992 = (l1992[[1]] - l1992[[2]])
+# DVI Difference Vegetation Index
+dvi1992 = l1992[[1]] - l1992[[2]]
+# or:
+# dvi1992 = l1992$defor1_.1 - l1992$defor1_.2
+dvi1992
+
+cl <- colorRampPalette(c('darkblue','yellow','red','black'))(100) # specifying a color scheme
+plot(dvi1992, col=cl)
+
+# DVI Difference Vegetation Index
+dvi2006 = l2006[[1]] - l2006[[2]]
+dvi2006
+
+plot(dvi2006, col=cl)
+
+
+# DVI difference in time
+dvi_dif = dvi1992 - dvi2006
+cld <- colorRampPalette(c('blue','white','red'))(100)
+plot(dvi_dif, col=cld)
+
+#- day 2
+
+# Range DVI (8 bit): -255 a 255
+# Range NDVI (8 bit): -1 a 1
+
+# Range DVI (16 bit): -65535 a 65535
+# Range NDVI (16 bit): -1 a 1
+
+# Hence, NDVI can be used to compare images with a different radiometric resolution
+
+# NDVI 1992
+dvi1992 = l1992[[1]] - l1992[[2]]
+ndvi1992 = dvi1992 / (l1992[[1]] + l1992[[2]])
+# or
+ndvi1992 = (l1992[[1]] - l1992[[2]]) / (l1992[[1]] + l1992[[2]])
+
+cl <- colorRampPalette(c('darkblue','yellow','red','black'))(100) # specifying a color scheme
+plot(ndvi1992, col=cl)
+
+# multiframe con il plotRGB dell'immagine sopra
+# e l'ndvi sotto
+
+# Multiframe with plotRGB on top of the NDVI image
+par(mfrow=c(2,1))
+plotRGB(l1992, r=1, g=2, b=3, stretch="lin")
+plot(ndvi1992, col=cl)
+
+# 2006
+ndvi2006 = dvi2006 / (l2006[[1]] + l2006[[2]])
+
+# Multiframe with NDVI1992 on top of the NDVI2006 image
+par(mfrow=c(2,1))
+plot(ndvi1992, col=cl)
+plot(ndvi2006, col=cl)
+
 
 
 
