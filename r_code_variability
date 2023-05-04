@@ -1,0 +1,37 @@
+install.packages("viridis")
+
+library(terra)
+library(patchwork)
+library(ggplot2)
+
+setwd("C:/Lab_Telerilevamento/")
+ sen<-rast("sentinel.png")
+ plotRGB(sen,1,2,3,stretch="lin")
+ nir<-sen[[1]]
+ sd3<-focal(nir, matrix(1/9,3,3), fun=sd)
+ plot(sd3)
+ geom_raster(sd3,mapping=aes(x=x,y=y,fill=layer))
+ sd3d<-as.data.frame(sd3,xy= T)
+ 
+p1<-ggplot() +
+geom_raster(sd3d,mapping=aes(x=x,y=y,fill=focal_sd)) +
+scale_fill_viridis()
+# in raster the name is just layer, while in terra it is more specific
+
+#multiplot con la scala di colori inferno e viridis
+p2<-ggplot() +
+geom_raster(sd3d,mapping=aes(x=x,y=y,fill=focal_sd)) +
+scale_fill_viridis(option="inferno")+
+ggtitle("Standard deviation via the inferno colour scale ")
+p1 + p2
+nird<-as.data.frame(nir, xy =T)
+p3<-ggplot()+
+geom_raster(nird, mapping=aes(x=x,y=y,fill=focal_sd)) +
+scale_fill_viridis(option="cividis")
+p3 + p1
+
+
+
+
+
+ 
