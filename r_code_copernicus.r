@@ -30,6 +30,9 @@ geom_raster(scd_crop, mapping = aes(x=x,y=y, fill=ssm))+
 ggtitle("Surface soil moisture _cropped img")+
 scale_fill_viridis(option="viridis")
 
+#per recuperare file contenenti r_code si usa 
+#Source("copernicus_file_R.txt")
+
 
 
 
