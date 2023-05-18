@@ -1,0 +1,9 @@
+#Installiamo il pacchetto sdm (Species distribution model)
+install.packages("sdm")
+library(sdm)
+library(rgdal)
+#richiamiamo il file dal pacchetto sdm
+file <-system.file("external/species.shp", package="sdm")
+#al posto del comando shapefile, per terra bisogna usare vect
+species <- vect(file)
+plot(species, pch = 19)
