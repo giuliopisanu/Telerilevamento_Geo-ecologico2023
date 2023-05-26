@@ -1,0 +1,38 @@
+setwd("C:/Lab_telerilevamento/Dati/")
+library(terra)
+ library(ggplot2)
+library(viridis)
+dsm_2013<-rast("2013Elevation_DigitalElevationModel-0.5m.tif")
+
+dsm_2013d<-as.data.frame(dsm_2013, xy= T)
+
+names(dsm_2013d) <- c("x", "y", "z")
+
+p1<- ggplot() +
+geom_raster(dsm_2013d, mapping=aes(x=x, y=y, fill=z)) +
+scale_fill_viridis()+
+ggtitle("dsm 2013")
+
+Errore: input inatteso in:
+"ggplot()+
+geom_raster(dsm_2013d, mapping=aes(x=x, y=y, fill=2013El"
+
+dtm_2013<-rast("2013Elevation_DigitalTerrainModel-0.5m.tif")
+dtm_2013d<-as.data.frame(dtm_2013, xy= T)
+names(dtm_2013d) <- c("x", "y", "z")
+p2<- ggplot() +
+geom_raster(dtm_2013d, mapping=aes(x=x, y=y, fill=z)) +
+scale_fill_viridis(option="magma")+
+ggtitle("dtm 2013")
+chm_2013<-dsm_2013-dtm_2013
+
+chm_2013d<-as.data.frame(chm_2013, xy= T)
+head(chm_2013d)
+p3<- ggplot() +
+geom_raster(chm_2013d, mapping=aes(x=x, y=y, fill=z))+
+scale_fill_viridis(option="inferno")+
+ggtitle("chm 2013")
+
+ 
+
+
