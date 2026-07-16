@@ -1,14 +1,15 @@
-#Esame telerilevamento Geo_Ecologico anno 2023
+#Esame telerilevamento Geo-Ecologico anno 2023
 # Studente : Giulio Pisanu
 
 # In questo script analizzaero delle immagini provenienti dal programma 
 # copernicus (ESA), relative ad un area che è stata soggetta ad  un incendio 
 # in data 21/07/2024, nel comune di Orani(NU) in località Punta su Venosu
-# per fare questo ho scaricato le immagini degli anni 2023 e 2025
+# per fare questo ho scaricato dal delle immagini degli anni 2023 e 2025
 
 
 #carico i pacchetti utili alle analisi
 install.packages("raster")
+#install.packages("ggplot2")
 install.packages("viridis")
 library(ggplot2) #Per plottare le immagini
 library(raster) #Per compiere operazioni su raster
@@ -46,8 +47,8 @@ plot(im_2023_s)
 dev.off()
 
 #Plot in colori reali ovvero bande: B02, B03, B04 
-plotRGB(im_2023_s, 3, 2, 1, stretch = "hist", axes = T, main= "Plot Immagine 2023")
-#Il titolo non viene visualizzato, quindi lo forzo montrando gli assi: axes= T
+plotRGB(im_2023_s, 3, 2, 1, stretch = "hist", margin = T, main= "Plot Immagine 2023")
+#Il titolo non viene visualizzato, quindi lo forzo montrando i margini: margin= T
 graphics.off() # equivalente a dev.off()
 
 # Importo le immagini relative all'anno 2025, ante incendio
@@ -108,23 +109,23 @@ dev.off()
 #I valori vicino al -1 rappresentano le aree bruciate
 
 NBR_2023 =(im_2023_s[[4]]-im_2023_s[[5]])/(im_2023_s[[4]]+im_2023_s[[5]])
-plot(NBR_2023, main="NBR 2023")
+plot(NBR_2023, main="NBR 2023", zlim=c(-1,1), col = cl)
 dev.off()
 
 NBR_2025 =(im_2025_s[[4]]-im_2025_s[[5]])/(im_2025_s[[4]]+im_2025_s[[5]])
-plot(NBR_2025, main="NBR 2025")
+plot(NBR_2025, main="NBR 2025",zlim=c(-1,1), col = cl)
 
 dev.off()
 
 
-par(mfrow=c(2,1))
-plot(NBR_2023, main="NBR 2023",col = cl)
-plot(NBR_2025, main="NBR 2025",col= cl)
+par(mfrow=c(1,2))
+plot(NBR_2023, main="NBR 2023", zlim=c(-1,1), col = cl)
+plot(NBR_2025, main="NBR 2025", zlim=c(-1,1), col= cl)
 dev.off()
 
 DIF_NBR = NBR_2023-NBR_2025
 
-plot(DIF_NBR)
+plot(DIF_NBR, main="DIF_NBR", col= cl_1)
 dev.off()
 
 
