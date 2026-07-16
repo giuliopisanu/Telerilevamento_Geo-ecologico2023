@@ -1,0 +1,138 @@
+#Esame telerilevamento Geo_Ecologico anno 2023
+# Studente : Giulio Pisanu
+
+# In questo script analizzaero delle immagini provenienti dal programma 
+# copernicus (ESA), relative ad un area che è stata soggetta ad  un incendio 
+# in data 21/07/2024, nel comune di Orani(NU) in località Punta su Venosu
+# per fare questo ho scaricato le immagini degli anni 2023 e 2025
+
+
+#carico i pacchetti utili alle analisi
+install.packages("raster")
+install.packages("viridis")
+library(ggplot2) #Per plottare le immagini
+library(raster) #Per compiere operazioni su raster
+library(viridis) #Scale colore idonee ai daltonici
+
+#Imposto la working directory
+setwd("C:/Users/giuli/Desktop/Telerilevamento geo-ecologico/Esame")
+
+# Importo le immagini
+
+# B02= blu
+# B03= verde
+# BO4= rossa
+# B08= NIR
+# B012= SWIR
+
+# Importo le immagini relative all'anno 2023, ante incendio
+list.files("Browser_images_23")
+
+lista_2023 <- list.files(path = "C:/Users/giuli/Desktop/Telerilevamento geo-ecologico/Esame/Browser_images_23",
+                         pattern = "2023-06-05", full.names = TRUE)
+lista_2023 
+
+#Uso la funzione lapply, che permette di applicare una funzione ad un elemento
+im_2023 <- lapply(lista_2023, raster) 
+
+#Creo uno stack  a partire dalle immagini appartenenti alla lista
+im_2023_s <- stack(im_2023)
+#Rinomino i file all'interno dello stack
+names(im_2023_s) <- c("B02", "B03", "B04", "B08", "B12")
+list(im_2023_s) #Per contollare l'operazione precedente
+
+#Plotto lo stack di immagini
+plot(im_2023_s)
+dev.off()
+
+#Plot in colori reali ovvero bande: B02, B03, B04 
+plotRGB(im_2023_s, 3, 2, 1, stretch = "hist", axes = T, main= "Plot Immagine 2023")
+#Il titolo non viene visualizzato, quindi lo forzo montrando gli assi: axes= T
+graphics.off() # equivalente a dev.off()
+
+# Importo le immagini relative all'anno 2025, ante incendio
+list.files("Browser_images_25")
+
+lista_2025 <- list.files(path = "C:/Users/giuli/Desktop/Telerilevamento geo-ecologico/Esame/Browser_images_25",
+                         pattern = "2025-06-06", full.names = TRUE)
+lista_2025 
+
+im_2025 <- lapply(lista_2025, raster) 
+im_2025_s <- stack(im_2025)
+names(im_2025_s) <- c("B02", "B03", "B04", "B08", "B12")
+
+
+dev.off()
+
+plotRGB(im_2025_s, 3, 2, 1, margin = T, stretch = "hist")
+dev.off()  
+
+#Confronto le immagini dei due anni
+par(mfrow=c(1,2))
+plotRGB(im_2023_s, 3, 2, 1, margin = T, stretch = "hist", main= "Plot Immagine 2023")
+plotRGB(im_2025_s, 3, 2, 1, margin = T, stretch = "hist", main= "Plot Immagine 2025")
+dev.off()
+
+###################################################################################
+# Fase 1: Calcolo del NDVI normalized vegetation index
+#NDVI=(NIR-RED)/(NIR+RED) in questo caso NDVI =(B08-B04)/(B08-B04)
+#I valori vicino all'unità indicano una vegetazione sana
+
+NDVI_2023 =(im_2023_s[[4]]-im_2023_s[[3]])/(im_2023_s[[4]]+im_2023_s[[3]])
+
+#Creo una colorRampPalette idonea ai daltonici
+cl <- colorRampPalette(c("Blue","Aquamarine","Orange","Black"))(100)
+plot(NDVI_2023, zlim=c(-1,1), main="NDVI 2023", col= cl )
+dev.off()
+
+NDVI_2025 =(im_2025_s[[4]]-im_2025_s[[3]])/(im_2025_s[[4]]+im_2025_s[[3]])
+
+plot(NDVI_2025, zlim=c(-1,1), main="NDVI 2025", col= cl)
+dev.off()
+
+#Plot combinato degli NDVI
+par(mfrow=c(1,2))
+plot(NDVI_2023, zlim=c(-1,1), main="NDVI 2023", col= cl)
+plot(NDVI_2025, zlim=c(-1,1), main="NDVI 2025", col= cl)
+dev.off()
+
+#Calcolo la differenza fra gli NDVI
+DIF_NDVI = NDVI_2023-NDVI_2025
+
+cl_1 <- viridis(100)
+plot(DIF_NDVI, main="DIF_NDVI", col= cl_1)
+dev.off()
+
+# Fase 2: Calcolo del NBR normalized burn ratio
+#NBR=(NIR-SWIR)/(NIR+SWIR) in questo caso NBR = (B8-B12)/(B8+B12)
+#I valori vicino al -1 rappresentano le aree bruciate
+
+NBR_2023 =(im_2023_s[[4]]-im_2023_s[[5]])/(im_2023_s[[4]]+im_2023_s[[5]])
+plot(NBR_2023, main="NBR 2023")
+dev.off()
+
+NBR_2025 =(im_2025_s[[4]]-im_2025_s[[5]])/(im_2025_s[[4]]+im_2025_s[[5]])
+plot(NBR_2025, main="NBR 2025")
+
+dev.off()
+
+
+par(mfrow=c(2,1))
+plot(NBR_2023, main="NBR 2023",col = cl)
+plot(NBR_2025, main="NBR 2025",col= cl)
+dev.off()
+
+DIF_NBR = NBR_2023-NBR_2025
+
+plot(DIF_NBR)
+dev.off()
+
+
+
+
+# DIF_NDVI_df <- as.data.frame(DIF_NDVI, xy= T)
+# 
+# ggplot() +
+#   geom_raster(DIF_NDVI_df, mapping=aes(x = x, y = y, fill=layer))+ 
+#    ggtitle("DIF_NDVI")+
+#    scale_fill_viridis("Viridis")
